@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 import os
 import requests
 import zipfile
@@ -24,9 +24,9 @@ dl_apps = {
 	'Hackerskeyboard':
 		['https://f-droid.org/repo/org.pocketworkstation.pckeyboard_1039003.apk', '8c861c7540e6eeb006070d0f2d80134e75637066591d705b987e164c3fe87521ed694ac844c945eb74449aff8723ff039f793b2e3743aac73865f74bb248edf5'],
 	'Drivedroid':
-		['https://softwarebakery.com/apps/drivedroid/files/drivedroid-free-0.10.47.apk', '5e3f4781f2b94ddfc068a49038734b97ea4a939e8fec46a243bfd2f07d714911d750e208b3e98d995aa267891a0e152d02e5c20e1f928fa9548726d96809f4c8'],
+		['https://softwarebakery.com/apps/drivedroid/files/drivedroid-free-0.10.50.apk', '455354369d34dd59cdf71e50c02fd1dc969925f803fbc1c498467ac1b3b50b7a3b23dd22a3e60a5dbe61d7106c99106f92ef6a86c56775f01e42dfcd1837c198'],
 	'OpenVPN':
-		['https://f-droid.org/repo/de.blinkt.openvpn_153.apk', '9003617216ce36f2ad7709b2f9d42a5f4902e2e528909b9925e5e4636d87d26ce12b0227c3de93743ef351339413d12e9cec314cf1f6008232ab311c5c8d98d2'],
+		['https://f-droid.org/repo/de.blinkt.openvpn_159.apk', 'a47200c972a6e98649f6a8f87e02c5b924b1c7915ef86698f1339a1ec82af3eab82e7ecf442a3b2f5ab5ded91b59b0943315133413b50a2c473d5f9ba8050695'],
 	'USBKeyboard': # Feb 3, 2015
 		['https://github.com/pelya/android-keyboard-gadget/raw/7ea69c684aa1/USB-Keyboard.apk', '18bced7b339a67c48fe31698cb54063bce8f3dd9f7d7f23d9e5c619697e8da5ab08312cf9a2fa0e3f445a584485db23d1e4c27e3ffc1448551bbaf486ccb11e9'],
 	'RFAnalyzer':
@@ -34,7 +34,7 @@ dl_apps = {
 	'Shodan':
 		['https://github.com/PaulSec/Shodan.io-mobile-app/raw/v0.0.3-new/io.shodan.app.apk', 'a2ff39d8e7a86d8e0a14368fd278fb03212999b309bc102d39f76ff69ca2a373d3d62a95cea6dbee761ae81ff3daaf83846e49e8ccbf0760276d825493d08652'],
 	'RouterKeygen':
-		['https://github.com/routerkeygen/routerkeygenAndroid/releases/download/v3.15.0/routerkeygen-3-15-0.apk', '95fba11539597eced9f3347f627bf3b24c9abc3c7e039ae1552a9c42c8c70ce362720dc401b85b9faac080d64e67bf594625f80472a492baf676dbe93822fc9e'],
+		['https://github.com/routerkeygen/routerkeygenAndroid/releases/download/v4.0.2/routerkeygen-4-0-2.apk', '0135bbeb371f616c3577e6932e67b6c22c5aff335c7d7570bf5d26f106eadb0cbf4eea12503726cb806d18794e1adc6f3cc934ea41ca5ef62a8c77a4702947da'],
 	'cSploit':
 		['https://github.com/cSploit/android/releases/download/v1.6.6-rc.2/cSploit-release.apk', 'b841c4376836bcc9d23fbc18b40eed70e08018e8eebc6d2d0abad59da63e4b325ffe4d8a4bd36107af63ed20a59c6648d6c4bd1264044267c86693744b15fa75'],
 }
@@ -197,10 +197,11 @@ def rootfs(forcedown, fs_size, nightly):
 	global Arch
 
 	# temporary hack until arm64 support is completed
-	if Arch == 'arm64':
-		fs_arch = 'armhf'
-	else:
-		fs_arch = Arch
+	##if Arch == 'arm64':
+	##	fs_arch = 'armhf'
+	##else:
+       	##      fs_arch = Arch
+       	fs_arch = Arch
 
 	fs_file = 'kalifs-' + fs_arch + '-' + fs_size + '.tar.xz'
 	fs_path = os.path.join('rootfs', fs_file)
@@ -229,10 +230,12 @@ def addrootfs(fs_size, dst):
 	global Arch
 
 	# temporary hack until arm64 support is completed
-	if Arch == 'arm64':
-		fs_arch = 'armhf'
-	else:
-		fs_arch = Arch
+        ## Update 2019-01-25: Disable workaround to use proper arm64 rootfs as it should be fully working now, Re4son
+	##if Arch == 'arm64':
+        ##		fs_arch = 'armhf'
+	##else:
+	##	fs_arch = Arch
+	fs_arch = Arch
 
 	fs_file = 'kalifs-' + fs_arch + '-' + fs_size + '.tar.xz'
 	fs_path = os.path.join('rootfs', fs_file)
@@ -482,6 +485,7 @@ def main():
 	parser.add_argument('--marshmallow', '-m', action='store_true', help='Android 6')
 	parser.add_argument('--nougat', '-n', action='store_true', help='Android 7')
 	parser.add_argument('--oreo', '-o', action='store_true', help='Android 8')
+	parser.add_argument('--pie', '-p', action='store_true', help='Android 9')
 	parser.add_argument('--forcedown', '-f', action='store_true', help='Force redownloading')
 	parser.add_argument('--uninstaller', '-u', action='store_true', help='Create an uninstaller')
 	parser.add_argument('--kernel', '-k', action='store_true', help='Build kernel installer only')
@@ -539,10 +543,13 @@ def main():
 		if args.oreo:
 			OS = 'oreo'
 			i += 1
+		if args.pie:
+			OS = 'pie'
+			i += 1
 		if i == 0:
-			abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo')
+			abort('Missing Android version. Available options: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie')
 		elif i > 1:
-			abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo')
+			abort('Select only one Android version: --kitkat, --lollipop, --marshmallow, --nougat, --oreo, --pie')
 
 		if args.rootfs and not (args.rootfs == 'full' or args.rootfs == 'minimal'):
 			abort('Invalid Kali rootfs size. Available options: --rootfs full, --rootfs minimal')
